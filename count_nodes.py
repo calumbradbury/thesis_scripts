@@ -6,7 +6,7 @@ import os
 import csv
 import numpy as np
 
-target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/raw/'
+target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/'
 
 files = ['0_1_ex_MChiSegmented_burned','0_15_ex_MChiSegmented_burned','0_2_ex_MChiSegmented_burned','0_25_ex_MChiSegmented_burned',
           '0_3_ex_MChiSegmented_burned','0_35_ex_MChiSegmented_burned','0_4_ex_MChiSegmented_burned','0_45_ex_MChiSegmented_burned',

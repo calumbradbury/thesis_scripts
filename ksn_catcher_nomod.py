@@ -25,6 +25,8 @@ target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_p
 #output = os.path.join('C:\\output2\\')
 
 remove_GLIMS = False
+
+disorder = True
                                                                                                                                         
 def writeHeader(file_name,target_name):
     with open(file_name,'r') as sourceheader_csv:
@@ -63,6 +65,36 @@ def pathCollector(path,name):
             write_names.append(write_name)
         return full_paths,dem_names,write_names
 
+
+def getDisorderConcavity(full_path,write_name,fromConcavityCatcher=False):
+    with open(full_path+'/'+write_name+'_fullstats_disorder_uncert.csv','r') as disorderInfo:
+        
+        #part of glacier removal
+        disorderDF = pd.read_csv(disorderInfo,delimiter=',')
+                     
+        
+        disorderConcavity = disorderDF[' best_fit_for_all_tribs']
+        disorder_list = disorderConcavity.tolist()
+        corrected_disorder = []
+        for x in disorder_list:
+            correct = "%.2f" %float(x)
+            correct = correct.replace('0','')
+            correct = correct.replace('.','0.')
+            corrected_disorder.append(correct) 
+            
+        if not fromConcavityCatcher:
+            return corrected_disorder
+
+        if fromConcavityCatcher:            
+            basin_series = disorderDF["basin_key"]
+            basin_key = basin_series.tolist()
+            basin_keys = []
+            for x in basin_key:
+                x = int(x)
+                basin_keys.append(x)
+            return basin_keys, corrected_disorder
+
+
 def concavityCatcher(full_path,write_name,processed=False):
     #returns the basin_key and median concavity
     write_name = '/'+write_name
@@ -73,13 +105,19 @@ def concavityCatcher(full_path,write_name,processed=False):
     #extract basin key and concavity as list
     basin_series = PointsDF["basin_key"]
     concavity_series = PointsDF["Median_MOverNs"]
-    basin_key = basin_series.tolist()
-    basin_keys = []
-    for x in basin_key:
-        x = int(x)
-        basin_keys.append(x)
+        
+    if not disorder:    
+        basin_key = basin_series.tolist()
+        basin_keys = []
+        for x in basin_key:
+            x = int(x)
+            basin_keys.append(x)
     
-    concavities = concavity_series.tolist()
+        concavities = concavity_series.tolist()
+        
+    if disorder:
+        print full_path,write_name
+        basin_keys,concavities = getDisorderConcavity(full_path,write_name,fromConcavityCatcher = True)
     
     if not processed:
         return basin_keys,concavities
@@ -112,20 +150,7 @@ def getBasinLatLon(full_path,write_name):
         #print lat_list,lon_list
         return lat_list,lon_list
 
-def getDisorderConcavity(full_path,write_name):
-    with open(full_path+'/'+write_name+'_fullstats_disorder_uncert.csv','r') as disorderInfo:
-        
-        #part of glacier removal
-        disorderDF = pd.read_csv(disorderInfo,delimiter=',')
-                     
-        
-        disorderConcavity = disorderDF[' best_fit_for_all_tribs']
-        disorder_list = disorderConcavity.tolist()
-        corrected_disorder = []
-        for x in disorder_list:
-            correct = "%.2f" %float(x)
-            corrected_disorder.append(correct) 
-        return corrected_disorder
+
     
 def countConcavity(dataFrame,concavity):
     concavityFrame = dataFrame[dataFrame['concavity_bootstrap'] == concavity]
