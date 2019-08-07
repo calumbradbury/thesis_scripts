@@ -359,7 +359,12 @@ def glaciatedTest(pandasSeries):
     return False
 
 #code to append complete allBasinInfo csv 
-def allBasinsInfo(full_path,dem_name,concavity,basin_key,new_ID):
+def allBasinsInfo(full_path,dem_name,concavity,basin_key,new_ID,glaciated = False):
+    
+    #skipping append of basin data, this removes glaciated basins from the output AllBasinsInfo.csv
+    if glaciated:
+        return
+    
     try:
         tile = dem_name.split("_")
         print tile
@@ -419,6 +424,12 @@ def ksnCatcher(full_path,dem_name,write_name,basin_key,concavity,basins_not_glac
             #print glims_glaciated
             print "testing %s %s %s"%(full_path,dem_name,basin_key)
             glaciated = glaciatedTest(glimsSeries)
+            try:
+                allBasinsInfo(full_path,dem_name,concavity,basin_key,new_ID,glaciated)
+            except:
+                print("allBasinsError")
+                sys.exit()
+            
             
             #deprecating
             #if glaciated:
