@@ -397,12 +397,6 @@ def allBasinsInfo(full_path,dem_name,concavity,basin_key,new_ID,glaciated = Fals
 def ksnCatcher(full_path,dem_name,write_name,basin_key,concavity,basins_not_glaciated,new_ID):
   #returns dataframe with mchi(ksn) for each basin based on the correct concavity
     try:
-        allBasinsInfo(full_path,dem_name,concavity,basin_key,new_ID)
-    except:
-        print("allBasinsError")
-        sys.exit()
-    #sys.exit()
-    try:
         with open(full_path+'/'+dem_name+str(concavity)+'_MChiSegmented_burned.csv','r') as mChicsv:         
             mchiPandas = pd.read_csv(mChicsv,delimiter=',')
             selected_DF = mchiPandas.loc[mchiPandas['basin_key'] == int(basin_key)]
