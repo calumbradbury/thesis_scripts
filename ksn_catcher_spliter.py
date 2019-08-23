@@ -25,7 +25,7 @@ sys.path.append(Iguanodon)
 from LSDPlottingTools import LSDMap_MOverNPlotting as MN
 from LSDMapFigure import PlottingHelpers as Helper
 
-target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya/'
+target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya/raw/'
 
 
                                                                                                                                         
@@ -127,7 +127,7 @@ for name in names:
 
     full_paths,dem_names,write_names = pathCollector(target,name)    
     
-    c = '0.35'    
+    c = '0.4'    
     for d,e in zip(full_paths,write_names):
         if not os.path.isfile(target+'/'+c+'_burned_movern.csv'):
             try:

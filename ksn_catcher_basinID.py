@@ -31,9 +31,9 @@ from LSDMapFigure import PlottingHelpers as Helper
 ##  User Variables ##
 #====================
 
-delta_m_n = 0.1
+delta_m_n = 0.05
 start_m_n = 0.1
-target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/0_1_5000m/'
+target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/0_05_5000m/'
 export_suffix = '_MChiSegmented_Full.csv'
 
 #====================
@@ -264,6 +264,7 @@ def concavityCatcher(full_path,write_name,processed=False,basins_not_glaciated=[
         logWriter("GetMOverNRangeMCPoints error at..."+full_path)
         logWriter(repr(e))
         print(BasinDF)
+        print(start_m_n,delta_m_n,total_iterations)
         sys.exit()
     
     #extract basin key and concavity as list

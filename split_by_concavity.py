@@ -21,7 +21,7 @@ from LSDPlottingTools import LSDMap_MOverNPlotting as MN
 from LSDMapFigure import PlottingHelpers as Helper
 
 #target = os.path.join('R:\\','LSDTopoTools','Topographic_projects','full_himalaya')
-target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya/'
+target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/'
 #output = os.path.join('C:\\output2\\')
 
 remove_GLIMS = False
@@ -146,7 +146,7 @@ def countConcavity(dataFrame,concavity):
 def ksnCatcher(full_path,dem_name,basin_key,concavity):
   #returns dataframe with mchi(ksn) for each basin based on the correct concavity
     try:
-        with open(full_path+'/'+dem_name+'0_35_MChiSegmented_burned.csv','r') as mChicsv:
+        with open(full_path+'/'+dem_name+'0_3_MChiSegmented_burned.csv','r') as mChicsv:
        
             mchiPandas = pd.read_csv(mChicsv,delimiter=',')
             selectedDF = mchiPandas.loc[mchiPandas['basin_key'] == int(basin_key)]
@@ -180,9 +180,9 @@ for name in names:
         c = str(c)
         c = c.replace('.','_')
         for d,e in zip(full_paths,dem_names):
-            if not os.path.isfile(target+'/'+'raw/'+c+'_0.35_MChiSegmented_burned.csv'):
+            if not os.path.isfile(target+'/'+'raw/'+c+'_0.3_MChiSegmented_burned.csv'):
                 try:
-                    writeHeader(file_name=d+'/'+e+c+'_MChiSegmented_burned.csv',target_name=target+'raw/'+c+'_0.35_MChiSegmented_burned.csv')
+                    writeHeader(file_name=d+'/'+e+c+'_MChiSegmented_burned.csv',target_name=target+'raw/'+c+'_0.3_MChiSegmented_burned.csv')
                 except:
                     print("source for headers not found, looping through lists until one is.",d+'/'+e+c+'_MChiSegmented_burned.csv')
 
@@ -206,8 +206,8 @@ for name in names:
 
 
                     try:
-                        ksnDF.to_csv(target+'raw/'+b+'_0.35_MChiSegmented_burned.csv',mode='a',header=False,index=False)
-                        print("saving to...",target+'raw/'+b+'_0.35_MChiSegmented_burned.csv')
+                        ksnDF.to_csv(target+'raw/'+b+'_0.3_MChiSegmented_burned.csv',mode='a',header=False,index=False)
+                        print("saving to...",target+'raw/'+b+'_0.3_MChiSegmented_burned.csv')
                         print("got data for %s %s %s"%(y,a,b))
                     except:
                         print("ERROR: problem exporting dataframe to csv at %s %s %s"%(y,a,b))

@@ -26,7 +26,8 @@ target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_p
 
 disorder = True
 
-
+#defined globally to ensure continuity
+basin_tracker = 0
 
 
                                                                                                                                      
@@ -97,7 +98,8 @@ def getDisorder(full_path,write_name):
 
 
         
-def getDisorderConcavity(full_path,write_name,basins_not_glaciated=[],fromConcavityCatcher=False):
+def getDisorderConcavity(full_path,write_name,basins_not_glaciated=[],fromConcavityCatcher=False,alter_ID=True):
+    global basin_tracker
     with open(full_path+'/'+write_name+'_fullstats_disorder_uncert.csv','r') as disorderInfo:
         
         #part of glacier removal
@@ -119,14 +121,36 @@ def getDisorderConcavity(full_path,write_name,basins_not_glaciated=[],fromConcav
         if fromConcavityCatcher:            
             basin_series = disorderDF["basin_key"]
             basin_key = basin_series.tolist()
+            new_ID=[]
             basin_keys = []
+            #for x in basin_key:
+            #    x = int(x)
+            #    basin_keys.append(x)
             for x in basin_key:
                 x = int(x)
-                basin_keys.append(x)
-            return basin_keys, corrected_disorder
+                #y = new_ID[-1]
+                #y = y+1
+                if alter_ID:
+                    try:
+                        y = x+basin_tracker
+                
+                    except:
+                        print basin_tracker
+                        print("basin_tracker error")
+                        sys.exit()
+                    basin_keys.append(x)
+                    new_ID.append(y)
+                else:
+                    basin_keys.append(x)
+            if alter_ID:
+                basin_tracker = new_ID[-1]
+                #need to add one for debug
+                basin_tracker = basin_tracker+1
+                return basin_keys, corrected_disorder, new_ID
+            else:
+                return basin_keys, corrected_disorder
         
-        
-def concavityCatcher(full_path,write_name,processed=False,basins_not_glaciated=[]):
+def concavityCatcher(full_path,write_name,processed=False,basins_not_glaciated=[],alter_ID = True):
     #returns the basin_key and median concavity
     write_name = '/'+write_name
     #reading in the basin info
@@ -151,10 +175,13 @@ def concavityCatcher(full_path,write_name,processed=False,basins_not_glaciated=[
     if disorder:
         print "got to disorder"
         print full_path,write_name
-        basin_keys,concavities = getDisorderConcavity(full_path,write_name,fromConcavityCatcher = True)
+        if not alter_ID:
+            basin_keys,concavities = getDisorderConcavity(full_path,write_name,fromConcavityCatcher = True,alter_ID=False)
+        else:
+            basin_keys,concavities,new_IDs = getDisorderConcavity(full_path,write_name,fromConcavityCatcher = True)
     if not processed:
         print concavities
-        return basin_keys,concavities
+        return basin_keys,concavities,new_IDs
     
     if processed:
         print "got to processed"
@@ -225,7 +252,7 @@ def glaciatedTest(pandasSeries):
     return False
             
 
-def ksnCatcher(full_path,dem_name,write_name,basin_key,concavity,basins_not_glaciated):
+def ksnCatcher(full_path,dem_name,write_name,basin_key,concavity,basins_not_glaciated,new_ID):
   #returns dataframe with mchi(ksn) for each basin based on the correct concavity
     try:
         with open(full_path+'/'+dem_name+str(concavity)+'_MChiSegmented_burned.csv','r') as mChicsv:
@@ -265,6 +292,24 @@ def ksnCatcher(full_path,dem_name,write_name,basin_key,concavity,basins_not_glac
 
             if not glaciated:
                 basins_not_glaciated.append(basin_key)
+                print("got here")
+                lister =  selected_DF["node"].tolist()
+                print("got here")
+                length = len(lister)
+                print("got here")
+                new_IDs = []
+                print length
+                for x in range(0,length):
+                    #print x
+                    
+                    new_IDs.append(new_ID)
+
+                #add_ID = [new_ID]
+                selected_DF["new_ID"] = new_IDs
+                #print("got here")
+                #print selected_DF
+                #print new_IDs
+                #sys.exit()
                 return basins_not_glaciated,selected_DF
 
     except Exception as e:
@@ -281,7 +326,7 @@ with open(target+'concavity_bootstrap_basins_summary_processed.csv','wb') as wri
     csvWriter = csv.writer(writeCSV,delimiter=',')
     csvWriter.writerow(['latitude','longitude','basin_key','concavity_bootstrap','concavity_disorder'])
 
-
+ID_dict = []
 for name in names:
 
     full_paths,dem_names,write_names = pathCollector(target,name)
@@ -300,14 +345,14 @@ for name in names:
         c = str(c)
         c = c.replace('.','_')
         for d,e in zip(full_paths,dem_names):
-            if not os.path.isfile(target+'/'+c+'_ex_MChiSegmented_burned.csv'):
+            if not os.path.isfile(target+'/'+c+'unique_MChiSegmented_burned.csv'):
                 try:
-                    writeHeader(file_name=d+'/'+e+c+'_MChiSegmented_burned.csv',target_name=target+c+'_ex_MChiSegmented_burned.csv')
+                    writeHeader(file_name=d+'/'+e+c+'_MChiSegmented_burned.csv',target_name=target+c+'unique_MChiSegmented_burned.csv')
                 except:
                     print("source for headers not found, looping through lists until one is.",d+'/'+e+c+'_MChiSegmented_burned.csv')
 
     for x,y,z in zip(full_paths,dem_names,write_names):
-        
+
         basins_not_glaciated = []
         
         try:
@@ -315,28 +360,32 @@ for name in names:
             #name_glaciated = 'himalaya_27_5_14'
             
 
-            basin_keys,concavities = concavityCatcher(x,z)
+            basin_keys,concavities,new_IDs = concavityCatcher(x,z)
+            print("new ids are:")
+            print(new_IDs)
+            ID_dict.append(new_IDs)
+            #relict#
             #basin_keys,concavities = concavityCatcher(full_glaciated,name_glaciated)
             
             #testing length of strings provides a basic error control
             if len(basin_keys) == len(concavities):
                 print("got basin key list and concavity list, lengths match so going ahead and collecting corresponding ksn data")
-                for a,b in zip(basin_keys,concavities):
+                for a,b,c in zip(basin_keys,concavities,new_IDs):
                     b = str(b)
                     b = b.replace('.','_')
-                    basins_not_glaciated,ksnDF = ksnCatcher(x,y,z,a,b,basins_not_glaciated)
+                    basins_not_glaciated,ksnDF = ksnCatcher(x,y,z,a,b,basins_not_glaciated,c)
                     #basins_not_glaciated, ksnDF = ksnCatcher(full_glaciated,y,a,b,basins_not_glaciated)
                     print basins_not_glaciated
                     #print ksnDF["basin_key"]
                     #if ksnDF:
                         #print("Glaciated is %s, exporting basin data"%(glaciated))
                     try:
-                        ksnDF.to_csv(target+b+'_ex_MChiSegmented_burned.csv',mode='a',header=False,index=False)
+                        ksnDF.to_csv(target+b+'unique_MChiSegmented_burned.csv',mode='a',header=False,index=False)
                         print("saving to...",target+b+'_ex_MChiSegmented_burned.csv')
                         print("got data for %s %s %s"%(y,a,b))
                     except:
                         print("ERROR: problem exporting dataframe to csv at %s %s %s"%(y,a,b))
-
+            
             else:
               print("basin key/concavity strings are not an equal length")
             print x_i
@@ -349,18 +398,18 @@ for name in names:
             print e
             print("ERROR: Problem getting source concavity/basin data. Skipping tile... %s"%(y))
             
-         
+
         try: 
-         #   print x,z
+            print x,z
             
-            corrected_disorder = getDisorderConcavity(x,z,basins_not_glaciated)
+            corrected_disorder = getDisorderConcavity(x,z,basins_not_glaciated,alter_ID = False)
             basin_lat,basin_lon = getBasinLatLon(x,z,basins_not_glaciated)
             
             #corrected_disorder = getDisorderConcavity(full_glaciated,name_glaciated)
             #basin_lat,basin_lon = getBasinLatLon(full_glaciated,name_glaciated)
             
             print "getting concavities"
-            basins,concavities = concavityCatcher(x,z,processed=True,basins_not_glaciated=basins_not_glaciated)
+            basins,concavities = concavityCatcher(x,z,processed=True,basins_not_glaciated=basins_not_glaciated,alter_ID = False)
             print basins,concavities
             
             #concavities = concavityCatcher(full_glaciated,name_glaciated,processed=True,basins_not_glaciated=basins_not_glaciated)
@@ -382,7 +431,12 @@ for name in names:
         except Exception as e:
             print e
             
-            print("No data at %s %s"%(x,z))
+            #print("No data at %s %s"%(x,z))
+
+print ID_dict
+sys.exit()
+
+
 with open(target+'concavity_bootstrap_basins_summary_processed.csv','r') as summaryCSV:
   summary_DF = pd.read_csv(summaryCSV,delimiter=',')
   concavity_series = summary_DF["concavity_bootstrap"]

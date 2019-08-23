@@ -7,30 +7,38 @@ import sys
 import matplotlib.cm as cm
 
 
-target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/raw/'
-
-source_list = ['0_1_ex_MChiSegmented_burned.csv','0_15_ex_MChiSegmented_burned.csv','0_2_ex_MChiSegmented_burned.csv',
-              '0_25_ex_MChiSegmented_burned.csv','0_3_ex_MChiSegmented_burned.csv','0_35_ex_MChiSegmented_burned.csv',
-              '0_4_ex_MChiSegmented_burned.csv','0_45_ex_MChiSegmented_burned.csv','0_5_ex_MChiSegmented_burned.csv',
-              '0_55_ex_MChiSegmented_burned.csv','0_6_ex_MChiSegmented_burned.csv','0_65_ex_MChiSegmented_burned.csv',
-              '0_7_ex_MChiSegmented_burned.csv','0_75_ex_MChiSegmented_burned.csv','0_8_ex_MChiSegmented_burned.csv',
-              '0_85_ex_MChiSegmented_burned.csv','0_9_ex_MChiSegmented_burned.csv','0_95_ex_MChiSegmented_burned.csv']
+#target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/raw/'
+target = '/exports/csce/datastore/geos/users/s1134744/LSDTopoTools/Topographic_projects/full_himalaya_5000/'
+#source_list = ['0_1_ex_MChiSegmented_burned.csv','0_15_ex_MChiSegmented_burned.csv','0_2_ex_MChiSegmented_burned.csv',
+#              '0_25_ex_MChiSegmented_burned.csv','0_3_ex_MChiSegmented_burned.csv','0_35_ex_MChiSegmented_burned.csv',
+#              '0_4_ex_MChiSegmented_burned.csv','0_45_ex_MChiSegmented_burned.csv','0_5_ex_MChiSegmented_burned.csv',
+#              '0_55_ex_MChiSegmented_burned.csv','0_6_ex_MChiSegmented_burned.csv','0_65_ex_MChiSegmented_burned.csv',
+#              '0_7_ex_MChiSegmented_burned.csv','0_75_ex_MChiSegmented_burned.csv','0_8_ex_MChiSegmented_burned.csv',
+#              '0_85_ex_MChiSegmented_burned.csv','0_9_ex_MChiSegmented_burned.csv','0_95_ex_MChiSegmented_burned.csv']
               
-#def openPandas(source):
-#    df = pd.read_csv(target+source)
-#    return df 
+source_list = ['0_1cosmo_MChiSegmented_burned.csv','0_15cosmo_MChiSegmented_burned.csv','0_2cosmo_MChiSegmented_burned.csv',
+              '0_25cosmo_MChiSegmented_burned.csv','0_3cosmo_MChiSegmented_burned.csv','0_35cosmo_MChiSegmented_burned.csv',
+              '0_4cosmo_MChiSegmented_burned.csv','0_45cosmo_MChiSegmented_burned.csv','0_5cosmo_MChiSegmented_burned.csv',
+              '0_55cosmo_MChiSegmented_burned.csv','0_6cosmo_MChiSegmented_burned.csv','0_65cosmo_MChiSegmented_burned.csv',
+              '0_7cosmo_MChiSegmented_burned.csv','0_75cosmo_MChiSegmented_burned.csv','0_8cosmo_MChiSegmented_burned.csv',
+              '0_85cosmo_MChiSegmented_burned.csv','0_9cosmo_MChiSegmented_burned.csv','0_95cosmo_MChiSegmented_burned.csv']
+              
+def openPandas(source):
+    df = pd.read_csv(target+source)
+    return df 
 
-#for source in source_list:
-#    df = openPandas(source)
-#    #print pandasDF
-#    df.to_csv(target+'full_data.csv',mode='a',index=False,header=False)
+for source in source_list:
+    df = openPandas(source)
+    #print pandasDF
+    df.to_csv(target+'cosmo_full_data.csv',mode='a',index=False,header=False)
 
 #with open(target+'0_35_ex_MChiSegmented_burned.csv','r') as csvfile:
 
-weights = ['strain_ezz']#,'tectonics','monsoon','burned_data','secondary_burned_data','exhumation','segmented_elevation']
+weights = ['cosmo_EBE_MMKYR']#,'tectonics','monsoon','burned_data','secondary_burned_data','exhumation','segmented_elevation']
 
-with open(target+'full_data.csv','r') as csvfile:
+with open(target+'cosmo_full_data.csv','r') as csvfile:
     pandasDF = pd.read_csv(csvfile,delimiter=',')
+    #print pandasDF
     pandasDF = pandasDF[pandasDF['m_chi'] > 0]
     #pandasDF = pandasDF[pandasDF['longitude'] > 85]
     #pandasDF = pandasDF[pandasDF['longitude'] < 90]
